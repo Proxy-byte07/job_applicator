@@ -320,6 +320,28 @@ Client Request
 
 ---
 
+## Cloud Deployment
+
+This project includes configuration files for 1-click cloud deployment on **Render** or **Vercel**.
+
+### Option A: Deploy on Render (Recommended)
+1. Push your repository to GitHub (`https://github.com/Proxy-byte07/job_applicator.git`).
+2. Go to [Render Dashboard](https://dashboard.render.com/) -> Click **New +** -> **Web Service**.
+3. Connect your `job_applicator` GitHub repository.
+4. Render will automatically detect `render.yaml` and `Procfile`.
+5. Set Environment Variables:
+   - `API_KEY`: `my-secret-key-123` (or your chosen secret)
+   - `MONGO_URI`: Your live MongoDB connection string
+6. Click **Create Web Service**. Your app & UI will be live at `https://<your-app>.onrender.com`.
+
+### Option B: Deploy on Vercel
+1. Install Vercel CLI or import repository at [Vercel Dashboard](https://vercel.com/new).
+2. Vercel automatically uses `vercel.json` configuration.
+3. Add Environment Variables (`API_KEY`, `MONGO_URI`).
+4. Click **Deploy**.
+
+---
+
 ## License
 
 ISC

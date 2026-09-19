@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: job-application-tracker
+    env: node
+    region: singapore
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: API_KEY
+        value: my-secret-key-123
+      - key: MONGO_URI
+        sync: false
