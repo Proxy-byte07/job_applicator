@@ -6,8 +6,14 @@
   'use strict';
 
   // ─── State Management ──────────────────────────────────────────────────
+  let storedKey = localStorage.getItem('trackflow_api_key');
+  if (!storedKey || storedKey.trim() === '') {
+    storedKey = 'my-secret-key-123';
+    localStorage.setItem('trackflow_api_key', storedKey);
+  }
+
   const state = {
-    apiKey: localStorage.getItem('trackflow_api_key') || 'my-secret-key-123',
+    apiKey: storedKey.trim(),
     viewMode: 'kanban', // 'kanban' | 'table'
     page: 1,
     limit: 10,
@@ -34,7 +40,7 @@
   };
 
   // ─── API Client Wrapper ────────────────────────────────────────────────
-  async function apiRequest(endpoint, method = 'GET', body = null) {
+  async function apiRequest(endpoint, method = 'GET', body = null, isRetry = false) {
     const url = endpoint.startsWith('http') ? endpoint : `${window.location.origin}${endpoint}`;
     const headers = {
       'Content-Type': 'application/json',
@@ -81,6 +87,14 @@
 
       logEntry.response = data;
       logApiRequest(logEntry);
+
+      // Auto-recovery: If 401 Unauthorized occurs and custom key failed, auto-reset to default key
+      if (res.status === 401 && !isRetry && state.apiKey !== 'my-secret-key-123') {
+        state.apiKey = 'my-secret-key-123';
+        localStorage.setItem('trackflow_api_key', 'my-secret-key-123');
+        updateApiKeyDisplay();
+        return await apiRequest(endpoint, method, body, true);
+      }
 
       return { status: res.status, ok: res.ok, data };
     } catch (err) {

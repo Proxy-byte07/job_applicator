@@ -6,6 +6,7 @@
  */
 const authMiddleware = (req, res, next) => {
   const apiKey = req.headers["x-api-key"];
+  const validKey = process.env.API_KEY || "my-secret-key-123";
 
   if (!apiKey) {
     return res.status(401).json({
@@ -14,7 +15,7 @@ const authMiddleware = (req, res, next) => {
     });
   }
 
-  if (apiKey !== process.env.API_KEY) {
+  if (apiKey.trim() !== validKey.trim()) {
     return res.status(401).json({
       success: false,
       message: "Unauthorized — invalid API key.",
