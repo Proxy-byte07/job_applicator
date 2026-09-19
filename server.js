@@ -58,7 +58,26 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+// ─── Middleware: Ensure DB Connection on Serverless Invocations ───────
+
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
+
 // ─── API Routes (auth required) ──────────────────────────────────────
+
+// Check if DB is ready for API routes
+app.use("/api/applications", (req, res, next) => {
+  const mongoose = require("mongoose");
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({
+      success: false,
+      message: "Database connection unavailable. If running on Vercel, please set MONGO_URI in your Vercel Project Environment Variables.",
+    });
+  }
+  next();
+});
 
 app.use("/api/applications", authMiddleware, applicationRoutes);
 
@@ -79,6 +98,10 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`);
+  });
+}
+
+module.exports = app;
